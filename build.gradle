@@ -1,0 +1,53 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+apply plugin: 'idea'
+
+defaultTasks 'deploy'
+
+// Including Ant build from a separate Gradle file to avoid clashes with
+// existing targets e.g. clean, etc. from java plugin
+task importTasksRunInOrder(type: GradleBuild) { GradleBuild antBuild ->
+  antBuild.buildFile ='buildWithClean.gradle'
+  antBuild.tasks = ['jar']
+}
+
+version = '1.0-SNAPSHOT'
+group = 'org.annares.lzo'
+
+repositories {  
+  mavenLocal()  
+}  
+
+task rename (type: Copy) {
+  from 'dist'
+  into project.libsDir
+  rename { String fileName ->
+    fileName.replaceAll('lzo', project.name + "-" + version)
+  }
+  rename '(lzo)(.jar)', '$2'
+}
+
+jar.onlyIf {"Ant build provided jar will be moved in place".length() == 0}
+
+task deploy (dependsOn: [importTasksRunInOrder, rename, uploadArchives]) << {
+    println 'Buidling and deploying'
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {  
+      repository(url: "file:///Users/cos/temp/myRepo/")
+      pom.project {
+        inceptionYear '2011'
+        licenses {
+          license {
+            name 'GNU GENERAL PUBLIC LICENSE Version 3'
+            distribution 'repo'
+          }
+        }
+      }
+    }
+  }  
+}
+

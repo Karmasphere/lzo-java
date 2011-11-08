@@ -1,0 +1,6 @@
+ant.importBuild('build.xml')
+
+jar << {
+  println "Ant jar task is complete."
+  println "File should be available from " + ant.properties['dist.jar']
+}
