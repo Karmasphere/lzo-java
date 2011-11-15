@@ -37,7 +37,10 @@ task deploy (dependsOn: [importTasksRunInOrder, rename, uploadArchives]) << {
 uploadArchives {
   repositories {
     mavenDeployer {  
-      repository(url: "file:///Users/cos/temp/myRepo/")
+      repository(url: "http://archiva:8290/archiva/repository/snapshots/") {
+          // Make sure to have correctly configured user/password in
+          // ~/.m2/settings.xml to access the repository above
+      }
       pom.project {
         inceptionYear '2011'
         licenses {
